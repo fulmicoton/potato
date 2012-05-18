@@ -11,7 +11,8 @@ Object composition
 To declare a model for a user profile, you would typically declare it as a composition of the information of name, age and address. Address itself will be the composition of a street/city/zipcode/state/country.
 
 
-    :::coffeescript   
+```CoffeeScript
+
     O = require 'potato'
 
     Address = O.Potato
@@ -25,6 +26,7 @@ To declare a model for a user profile, you would typically declare it as a compo
             name:    O.String
             address: Address
             age:     O.Int
+```
 
 You may notice that this syntax also allows to inline the definition of a very simple composed object that is very unlikely to be reused. For instance :
 
