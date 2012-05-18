@@ -1,0 +1,15 @@
+doctype 5
+html(lang="en")
+  head
+    link(rel="stylesheet", href="assets/bootstrap/css/bootstrap.min.css")
+    link(rel="stylesheet", href="assets/markstrap.css")
+  body(data-spy="scroll")
+    div.site.container-fluid
+      div#navbar.span5
+        div.sidebar-nav
+          ul.nav.nav-list
+      div.span9.offset5.content
+        != data
+    script(src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js",type="application/javascript")
+    script(src="assets/bootstrap/js/bootstrap.min.js",type="application/javascript")
+    script(src="assets/markstrap.js",type="application/javascript")
