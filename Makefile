@@ -2,19 +2,32 @@ COFFEE_FILES=${shell find src -name "*.coffee"}
 JS_FILES = $(COFFEE_FILES:.coffee=.js)
 BIN=${shell npm bin}
 
+%.js : %.coffee node_modules
+	${BIN}/coffee -c $<
+
+
+doc/assets/%.js : doc/markstrap/%.coffee node_modules
+	${BIN}/coffee -c $< -o $@
+
+doc/assets/%.css : doc/markstrap/%.less node_modules
+	${BIN}/lessc $< $@
+
+doc/%.html: %.md node_modules doc/assets/markstrap.jade
+	${BIN}/markitup -t doc/assets/markstrap.jade -o doc/ $<
+
 all: potato.js test potato-min.js potato-browserify.js potato-browserify-min.js examples
 
 devenv: node_modules
 
-node_modules:
+node_modules: package.json
 	npm install
 
 clean: 
 	rm -f ${JS_FILES}
 	rm -fr node_modules
+	rm -f doc/*.html
 
-%.js : %.coffee node_modules
-	${BIN}/coffee -c $<
+doc: doc/assets/markstrap.js doc/assets/markstrap.css doc/README.html
 
 potato.js: ${JS_FILES} node_modules
 	${BIN}/browserify -e src/entry-point-browserify.js --outfile ./potato.js
@@ -29,7 +42,6 @@ web: web/potato-browserify.js web/potato.js
 
 test: ${JS_FILES} node_modules
 	@npm test
-
 
 #examples: web/potato.js node_modules
 	# cd web/examples && find . -name "*.coffee" -exec ${BIN}/coffee -c {}  \;
