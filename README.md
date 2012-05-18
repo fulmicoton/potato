@@ -1,6 +1,8 @@
 Potato : A composition-friendly Microframework
 =================================================
 
+[![Build Status](https://secure.travis-ci.org/poulejapon/potato.png)](http://travis-ci.org/poulejapon/potato.png])
+
 Potato is a CoffeeScript micro-framework focused
 on composition. It relies on its own object model, whose syntax might recall that of an ORM.
 
