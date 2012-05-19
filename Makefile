@@ -1,33 +1,51 @@
 COFFEE_FILES=${shell find src -name "*.coffee"}
-JS_FILES = $(COFFEE_FILES:.coffee=.js)
+JS_FILES=$(COFFEE_FILES:.coffee=.js)
 BIN=${shell npm bin}
 
+DOC_MD_FILES=${shell find doc -name "*.md"}
+DOC_HTML_FILES=$(DOC_MD_FILES:.md=.html)
+
+
+all: lib doc test
+
+# compiles coffee-script
 %.js : %.coffee node_modules
 	${BIN}/coffee -c $<
 
-
-doc/assets/%.js : doc/markstrap/%.coffee node_modules
-	${BIN}/coffee -c $< -o $@
-
-doc/assets/%.css : doc/markstrap/%.less node_modules
+# compile less
+%.css : %.less node_modules
 	${BIN}/lessc $< $@
 
-doc/%.html: %.md node_modules doc/assets/markstrap.jade
-	${BIN}/markitup -t doc/assets/markstrap.jade -o doc/ $<
+# minifies js
+%.min.js : %.js node_modules
+	${BIN}/uglifyjs -o $@ $< 
 
-all: potato.js test potato-min.js potato-browserify.js potato-browserify-min.js examples
+# compiles html files using markitup
+%.html: %.md %.jade doc/layout.jade node_modules 
+	${BIN}/markitup -t $(word 2,$^) -o doc/ $<
+# Fallback to default if the specific template does not exists.
+%.html: %.md doc/default.jade doc/layout.jade node_modules 
+	${BIN}/markitup -t $(word 2,$^) -o doc/ $<
 
-devenv: node_modules
+
 
 node_modules: package.json
 	npm install
 
-clean: 
+clean:
 	rm -f ${JS_FILES}
 	rm -fr node_modules
 	rm -f doc/*.html
+	rm -f examples/assets/*.js
+	rm -f examples/assets/*.css
 
-doc: doc/assets/markstrap.js doc/assets/markstrap.css doc/README.html
+doc/assets/potato.min.js: potato.js
+	cp potato.min.js doc/assets/potato.min.js
+
+doc: doc/assets/markstrap.js doc/assets/markstrap.css doc/assets/potato.min.js doc/assets/examples.js ${DOC_HTML_FILES}
+
+# build all lib files
+lib: potato.js potato.min.js potato-browserify.js potato-browserify-min.js
 
 potato.js: ${JS_FILES} node_modules
 	${BIN}/browserify -e src/entry-point-browserify.js --outfile ./potato.js
@@ -35,20 +53,7 @@ potato.js: ${JS_FILES} node_modules
 potato-browserify.js: ${JS_FILES} node_modules
 	${BIN}/browserify src/potato.js --outfile ./potato-browserify.js
 
-%-min.js : %.js node_modules
-	${BIN}/uglifyjs -o $@ $< 
-
-web: web/potato-browserify.js web/potato.js
-
+# launch tests
 test: ${JS_FILES} node_modules
 	@npm test
 
-#examples: web/potato.js node_modules
-	# cd web/examples && find . -name "*.coffee" -exec ${BIN}/coffee -c {}  \;
-	# ${BIN}/browserify  web/examples/example.js --ignore potato -o web/examples/example-browserified.js
-
-# doc: dev
-#	cd potato-doc && rm -fr build
-#	cd potato-doc && lessc source/_static/basic.less > source/_static/basic.css
-#	cd potato-doc && make html
-#	docco potato/src/potato.coffee

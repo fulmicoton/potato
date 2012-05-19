@@ -21,14 +21,19 @@ TabMenu = view.View
 
 	el: "<ul class='menu'>"
 	
-	model: core.ListOf MenuItem
-		selected: model.String
+	model: core.ListOf(MenuItem)
 
 	template: """
 		{{#model}}<li data-item_id='{{id}}'>{{label}}</li>{{/model}}
 		"""
 
 	methods:
+		addItem: (id, label)->
+			@model.push MenuItem.make
+				id: id
+				label: label
+			@render()		
+		
 		findItem: (item_id)->
 			@find "li[data-item_id='#{item_id}']"
 
@@ -50,7 +55,7 @@ TabMenu = view.View
 	
 	events:
 		"li" : "click" : (evt)->
-			item_id = evt.target.dataset.item_id
+			item_id = evt.currentTarget.dataset.item_id
 			@select item_id
 
 TemplateView = view.View

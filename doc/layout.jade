@@ -1,0 +1,29 @@
+doctype 5
+html(lang="en")
+  head
+    link(rel="stylesheet", href="assets/bootstrap/css/bootstrap.min.css")
+    block css
+      link(rel="stylesheet", href="assets/markstrap.css")
+      
+  body(data-spy="scroll")
+    a(href="https://github.com/poulejapon/potato")
+      img#ribbon(src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png",alt="Fork me on GitHub")
+    div.navbar.navbar-fixed-top
+      div.navbar-inner
+        div.container
+          ul.nav
+            li
+              a(href="index.html") Home
+            li
+              a(href="reference.html") Reference
+            li
+              a(href="examples.html") Examples
+    div.site.container-fluid#container
+      block body
+        div.span4#sectionList
+          div.sidebar-nav
+            ul.nav.nav-list
+              block navbar
+        div.span8.offset4.content
+          block content
+    block scripts
