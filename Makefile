@@ -39,7 +39,7 @@ clean:
 	rm -f examples/assets/*.js
 	rm -f examples/assets/*.css
 
-doc/assets/potato.min.js: potato.js
+doc/assets/potato.min.js: potato.min.js
 	cp potato.min.js doc/assets/potato.min.js
 
 doc: doc/assets/markstrap.js doc/assets/markstrap.css doc/assets/potato.min.js doc/assets/examples.js ${DOC_HTML_FILES}
