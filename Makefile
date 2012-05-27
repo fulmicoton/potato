@@ -2,32 +2,15 @@ COFFEE_FILES=${shell find src -name "*.coffee"}
 JS_FILES=$(COFFEE_FILES:.coffee=.js)
 BIN=${shell npm bin}
 
-DOC_MD_FILES=${shell find doc -name "*.md"}
-DOC_HTML_FILES=$(DOC_MD_FILES:.md=.html)
-
-
-all: lib doc test
+all: lib test
 
 # compiles coffee-script
 %.js : %.coffee node_modules
 	${BIN}/coffee -c $<
 
-# compile less
-%.css : %.less node_modules
-	${BIN}/lessc $< $@
-
 # minifies js
 %.min.js : %.js node_modules
 	${BIN}/uglifyjs -o $@ $< 
-
-# compiles html files using markitup
-%.html: %.md %.jade doc/layout.jade node_modules 
-	${BIN}/markitup -t $(word 2,$^) -o doc/ $<
-# Fallback to default if the specific template does not exists.
-%.html: %.md doc/default.jade doc/layout.jade node_modules 
-	${BIN}/markitup -t $(word 2,$^) -o doc/ $<
-
-
 
 node_modules: package.json
 	npm install
@@ -42,7 +25,8 @@ clean:
 doc/assets/potato.min.js: potato.min.js
 	cp potato.min.js doc/assets/potato.min.js
 
-doc: doc/assets/markstrap.js doc/assets/markstrap.css doc/assets/potato.min.js doc/assets/examples.js ${DOC_HTML_FILES}
+serve-doc:
+	cd doc && ${BIN}/readymade serve
 
 # build all lib files
 lib: potato.js potato.min.js potato-browserify.js potato-browserify-min.js

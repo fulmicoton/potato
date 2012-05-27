@@ -2266,11 +2266,16 @@ require.define("/widget.js", function (require, module, exports, __dirname, __fi
   TabMenu = view.View({
     help: "This menu represents a tabmenu. That is a menu\nwith always exactly one item selected at a time.\n\nIf a selected value is supplied by the user,\nthe event is triggered once on startup.\n\nIf a user clicks more than once on a menu item,\nthe event is only triggered the first time.",
     el: "<ul class='menu'>",
-    model: core.ListOf(MenuItem({
-      selected: model.String
-    })),
+    model: core.ListOf(MenuItem),
     template: "{{#model}}<li data-item_id='{{id}}'>{{label}}</li>{{/model}}",
     methods: {
+      addItem: function(id, label) {
+        this.model.push(MenuItem.make({
+          id: id,
+          label: label
+        }));
+        return this.render();
+      },
       findItem: function(item_id) {
         return this.find("li[data-item_id='" + item_id + "']");
       },
@@ -2298,7 +2303,7 @@ require.define("/widget.js", function (require, module, exports, __dirname, __fi
       "li": {
         "click": function(evt) {
           var item_id;
-          item_id = evt.target.dataset.item_id;
+          item_id = evt.currentTarget.dataset.item_id;
           return this.select(item_id);
         }
       }
