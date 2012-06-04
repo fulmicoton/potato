@@ -6,12 +6,17 @@ Example = potato.Model
     components:
         label: potato.String
         coffeeScript: potato.String
+
+    methods:
+        loadFromCoffeescript: (source)->
+            @application = CoffeeScript.eval source
+            this
     
     static:
         makeFromCoffeeScript: (label, coffeeScript) ->
             example = Example.make
-                "label": label
-                "coffeeScript": coffeeScript
+                label: label
+                coffeeScript: coffeeScript
             example.application = CoffeeScript.eval coffeeScript
             example
 
@@ -27,6 +32,9 @@ ExampleEditor = potato.View
         load: (example)->
             @editor.setValue example.coffeeScript
         
+        content: ->
+            @editor.getValue()
+        
         editorConfig: ->
             lineNumbers: true
             lineWrapping: true
@@ -39,12 +47,15 @@ ExampleEditor = potato.View
 
 ExamplePreview = potato.View
     
-    el : "<div class='preview'>"
+    el : "<div class='preview loading'>"
     components:
         example: potato.View
     methods:
         load: (example) ->
-            @application = example.application.loadInto @el
+            @el.removeClass "loading"
+            setTimeout =>
+                @el.addClass "loading", 1
+                @application = example.application.loadInto @el
 
 ExampleApplication = potato.View
     
@@ -56,10 +67,12 @@ ExampleApplication = potato.View
                 </div>
             </div>
             <div class="span6 content">
+                <button class="reload"><i class="icon-refresh"> </i> Reload</button>
+                <button class="play"><i class="icon-play"></i> Run Code</button>
                 <#editor/>
             </div>
             <div id="content" class="span4 content">
-               <#preview/>
+                <#preview/>
             </div>
         </div>
     """
@@ -67,7 +80,7 @@ ExampleApplication = potato.View
     model: potato.MapOf(Example)
 
     methods:
-        load: (exampleLabel, exampleSrc)->
+        loadUrl: (exampleLabel, exampleSrc)->
             $.get "examples/"+exampleSrc, {}, (source)=>
                 example = Example.makeFromCoffeeScript exampleLabel, source
                 @addExample exampleSrc, example
@@ -88,6 +101,17 @@ ExampleApplication = potato.View
         preview:    ExamplePreview
     
     events:
+        "button.play": "click": ->
+            source = @editor.content()
+            exampleId = @menu.selected
+            example = @model[exampleId]
+            example.loadFromCoffeescript source
+            @preview.load example
+        "button.reload": "click": ->
+            exampleId = @menu.selected
+            example = @model[exampleId]
+            @editor.load example
+            @preview.load example
         "@menu" : "select" : (exampleId)-> 
             example = @model[exampleId]
             @editor.load example
@@ -104,4 +128,4 @@ EXAMPLES =
 $ ->
     window.exampleApplication = ExampleApplication.loadInto $ "#container"
     for exampleId, exampleSrc of EXAMPLES
-        exampleApplication.load exampleId, exampleSrc
+        exampleApplication.loadUrl exampleId, exampleSrc

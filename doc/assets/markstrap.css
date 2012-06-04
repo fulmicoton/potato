@@ -28,7 +28,7 @@ div.navbar-fixed-top {
 }
 img#ribbon {
   z-index: 1;
-  position: absolute;
+  position: fixed;
   top: 40px;
   right: 0;
   border: 0;
