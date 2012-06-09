@@ -947,31 +947,62 @@ require.define("/model.js", function (require, module, exports, __dirname, __fil
     MAX: 10,
     STEP: 1,
     "default": 0,
-    isValid: function(data) {
-      return (typeof data) === "number" && (data === Math.round(data));
+    validate: function(data) {
+      if ((typeof data) === "number" && (data === Math.round(data))) {
+        return {
+          ok: true
+        };
+      } else {
+        return {
+          ok: false,
+          errors: "" + data + " is not an integer"
+        };
+      }
     }
   });
 
   String = core.Literal({
     type: 'string',
     "default": "",
-    isValid: function(data) {
-      return (typeof data) === "string";
+    validate: function(data) {
+      if ((typeof data) === "string") {
+        return {
+          ok: true
+        };
+      } else {
+        return {
+          ok: false,
+          errors: "Expected a string."
+        };
+      }
     }
   });
 
   NonEmptyString = String({
     "default": "something...",
-    isValid: function(data) {
-      return (String.isValid(data)) && (data !== "");
+    validate: function(data) {
+      var validAsString;
+      validAsString = String.validate(data);
+      if (validAsString.ok && data !== "") {
+        return validate(false, "Must not be empty.");
+      } else {
+        return validAsString;
+      }
     }
   });
 
   Boolean = core.Literal({
     type: 'boolean',
     "default": false,
-    isValid: function(data) {
-      return (typeof data) === "boolean";
+    validate: function(data) {
+      if ((typeof data) === "boolean") {
+        return validate(date);
+      } else {
+        return {
+          ok: false,
+          errors: "Boolean expected."
+        };
+      }
     }
   });
 
@@ -1033,16 +1064,30 @@ require.define("/model.js", function (require, module, exports, __dirname, __fil
       url: function() {}
     },
     "static": {
-      isValid: function(obj) {
-        var cid, comp, _ref;
+      validate: function(data) {
+        /*
+                    Validate works on raw data.
+                    By data think JavaScript literals. 
+                    Think deserialized JSON.
+        */
+
+        var cid, component, componentValidation, validationResult, _ref;
+        validationResult = {
+          ok: true
+        };
         _ref = this.components();
         for (cid in _ref) {
-          comp = _ref[cid];
-          if ((comp.isValid != null) && !comp.isValid(obj[cid])) {
-            return false;
+          component = _ref[cid];
+          componentValidation = component.validate(data[cid]);
+          if (!componentValidation.ok) {
+            validationResult.ok = false;
+            if (!(validationResult.errors != null)) {
+              validationResult.errors = {};
+            }
+            validationResult.errors[cid] = componentValidation.errors;
           }
         }
-        return true;
+        return validationResult;
       },
       fromJSON: function(json) {
         var data;
@@ -1124,6 +1169,23 @@ require.define("/model.js", function (require, module, exports, __dirname, __fil
             obj.addData(itemData);
           }
           return obj;
+        },
+        validate: function(data) {
+          var item, itemId, itemValidation, validationResult;
+          validationResult = {
+            ok: true
+          };
+          for (itemId in data) {
+            item = data[itemId];
+            itemValidation = this.itemType.validate(item);
+            if (!(itemValidation.ok != null)) {
+              if (!(validationResult.errors != null)) {
+                validationResult.errors = {};
+              }
+              validationResult.errors[itemId] = itemValidation.errors;
+            }
+          }
+          return validationResult;
         }
       }
     });

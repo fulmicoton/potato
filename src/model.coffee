@@ -2,31 +2,49 @@ core = require './core'
 eventcaster = require './eventcaster'
 utils = require './utils'
 
+
 Integer = core.Literal
     type: 'integer'
     MIN: 0
     MAX: 10
     STEP: 1
     default: 0
-    isValid: (data)->
-        (typeof data) == "number" and (data == Math.round data)
+    validate: (data)->
+        if (typeof data) == "number" and (data == Math.round data)
+            ok: true
+        else
+            ok: false
+            errors: "#{data} is not an integer" 
 
 String = core.Literal
     type: 'string'
     default: ""
-    isValid: (data)->
-        (typeof data) == "string"
+    validate: (data)->
+        if (typeof data) == "string"
+            ok: true
+        else
+            ok: false
+            errors: "Expected a string."
 
 NonEmptyString = String
     default: "something..."
-    isValid: (data)->
-        (String.isValid data) and (data != "")
+    validate: (data)->
+        validAsString = String.validate data
+        if validAsString.ok and data != ""
+            validate false, "Must not be empty."
+        else
+            validAsString 
 
 Boolean = core.Literal
     type: 'boolean'
     default: false
-    isValid: (data)->
-        (typeof data) == "boolean"
+    validate: (data)->
+        if (typeof data) == "boolean"
+            validate date
+        else
+            ok: false
+            errors: "Boolean expected."
+
 
 Model = eventcaster.EventCaster
     
@@ -76,11 +94,21 @@ Model = eventcaster.EventCaster
         url: ->
         
     static:
-        isValid: (obj)->
-            for cid, comp of @components()
-                if comp.isValid? and not comp.isValid obj[cid]
-                    return false
-            true
+        validate: (data)->
+            ###
+            Validate works on raw data.
+            By data think JavaScript literals. 
+            Think deserialized JSON.
+            ###
+            validationResult = ok : true
+            for cid, component of @components()
+                componentValidation = component.validate data[cid]
+                if not componentValidation.ok
+                    validationResult.ok = false
+                    if not validationResult.errors?
+                        validationResult.errors = {}
+                    validationResult.errors[cid] = componentValidation.errors
+            validationResult
                     
         # Returns an object from this JSON data.        
         fromJSON: (json)->
@@ -133,13 +161,25 @@ CollectionOf = (itemType) ->
             
             addData: (itemData)->
                 @add itemType.fromData itemData
-                
+
+
         static:
             setData: (obj,data)->
                 obj.__items = []
                 for itemData in data
                     obj.addData itemData
                 obj
+
+            validate: (data)->
+                validationResult = ok: true
+                for itemId, item of data
+                    itemValidation = @itemType.validate item 
+                    if not itemValidation.ok?
+                        if not validationResult.errors?
+                            validationResult.errors = {}
+                        validationResult.errors[itemId] = itemValidation.errors
+                validationResult
+
 ###
 TODO Add a view model.
 

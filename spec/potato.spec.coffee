@@ -152,6 +152,44 @@ describe 'potato.Model', ->
         model2 = SomeOtherModel.make()
         expect(model2.count).toEqual(1)
 
+    it 'offers validation and components validation', ->
+        SmartDressCode = potato.Model
+            components:
+                shoes: potato.String
+                    validate: (data)->
+                        if data == "sneakers"
+                            ok: false
+                            errors: "No Sneakers please"
+                        else
+                            ok: true
+                top: potato.String
+                    validate: (data)->
+                        if data == "T-Shirt"
+                            ok: false
+                            errors: "T-Shirt are not accepted."
+                        else
+                            ok: true
+        steveJobsValidation = SmartDressCode.validate
+            shoes: "sneakers"
+            top: "turtle neck"
+        expect(steveJobsValidation).toEqual
+            ok: false
+            errors:
+                shoes: "No Sneakers please"
+        linusValidation = SmartDressCode.validate
+            shoes: "sneakers"
+            top: "T-Shirt" 
+        expect(linusValidation).toEqual
+            ok: false
+            errors:
+                shoes: "No Sneakers please"
+                top: "T-Shirt are not accepted."
+        jamesBondValidation = SmartDressCode.validate
+            shoes: "Souliers"
+            top: "Costume"
+        expect(jamesBondValidation).toEqual
+            ok: true
+        
 
 describe 'potato.View', ->
                 
