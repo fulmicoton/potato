@@ -49,6 +49,9 @@ Boolean = core.Literal
 Model = eventcaster.EventCaster
     
     methods:
+        validate: (args...)->
+            @__potato__.validate args... 
+
         destroy: ->
             @trigger "delete"
 

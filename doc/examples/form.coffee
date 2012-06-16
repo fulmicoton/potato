@@ -37,6 +37,7 @@ FormExample = potato.View
     events:
         "button": "click": ->
             window.exampleform = @exampleForm
-            console.log @exampleForm.val()
+            console.log "here"
+            console.log @exampleForm.validate()
     components:
         exampleForm: potato.FormFactory.FormOf(FormModel)

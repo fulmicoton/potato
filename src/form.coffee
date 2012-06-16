@@ -27,6 +27,9 @@ PotatoView = Form
             for k,v of @model.components()
                 res[k] = @[k].get_val()
             res
+        validate: ->
+            val = @val()
+            @model.validate val
 
 PotatoViewOf = (model)->
     content = {}
