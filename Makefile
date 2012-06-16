@@ -2,7 +2,7 @@ COFFEE_FILES=${shell find src -name "*.coffee"}
 JS_FILES=$(COFFEE_FILES:.coffee=.js)
 BIN=${shell npm bin}
 
-all: lib test
+all: lib test doc/assets/potato.min.js
 
 # compiles coffee-script
 %.js : %.coffee node_modules

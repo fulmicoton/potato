@@ -29,7 +29,8 @@ PotatoView = Form
             res
 
 PotatoViewOf = (model)->
-    content = utils.mapDict ((model)->FormFactory.FormOf model), model.components()
+    content = {}
+    content.components = utils.mapDict ((model)->FormFactory.FormOf model), model.components()
     content.model = model
     template =''
     if model.label
@@ -42,15 +43,15 @@ PotatoViewOf = (model)->
             template += "<div style='clear: both;'/>"
         else
             template += "<##{k}/>"
-    potato = PotatoView
-        template: template
-        components:
-            content
-    potato
+    content.template = template
+    PotatoView content
 
 InputForm = Form
     el: "<input type=text>"
-
+    methods:
+        get_val: ->
+            @el.val()
+            
 IntegerForm = Form
     el: "<input type='number' step='1' required='' placeholder=''>"
     methods:
@@ -60,6 +61,8 @@ IntegerForm = Form
             @el.attr "max", integerModel.MAX
             @el.attr "step", integerModel.STEP
             @el.attr "placeholder", integerModel.help ? integerModel.label ? ""
+        get_val: ->
+            parseInt @el.val(),10
 
 JSONForm = Form
     template: "{}"
@@ -81,7 +84,6 @@ FormFactory = core.Tuber
         potato: PotatoViewOf
     FormOf: (model)->
         @widgets[model.type](model)
-
 
 module.exports =
     FormFactory: FormFactory

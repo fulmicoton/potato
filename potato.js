@@ -2218,8 +2218,9 @@ require.define("/form.js", function (require, module, exports, __dirname, __file
   });
 
   PotatoViewOf = function(model) {
-    var content, k, label, potato, template, v, _ref, _ref1;
-    content = utils.mapDict((function(model) {
+    var content, k, label, template, v, _ref, _ref1;
+    content = {};
+    content.components = utils.mapDict((function(model) {
       return FormFactory.FormOf(model);
     }), model.components());
     content.model = model;
@@ -2239,15 +2240,17 @@ require.define("/form.js", function (require, module, exports, __dirname, __file
         template += "<#" + k + "/>";
       }
     }
-    potato = PotatoView({
-      template: template,
-      components: content
-    });
-    return potato;
+    content.template = template;
+    return PotatoView(content);
   };
 
   InputForm = Form({
-    el: "<input type=text>"
+    el: "<input type=text>",
+    methods: {
+      get_val: function() {
+        return this.el.val();
+      }
+    }
   });
 
   IntegerForm = Form({
@@ -2260,6 +2263,9 @@ require.define("/form.js", function (require, module, exports, __dirname, __file
         this.el.attr("max", integerModel.MAX);
         this.el.attr("step", integerModel.STEP);
         return this.el.attr("placeholder", (_ref = (_ref1 = integerModel.help) != null ? _ref1 : integerModel.label) != null ? _ref : "");
+      },
+      get_val: function() {
+        return parseInt(this.el.val(), 10);
       }
     }
   });

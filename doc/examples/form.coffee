@@ -32,7 +32,11 @@ FormExample = potato.View
     template: """
             <h1>Form Model Demonstration</h1>
             <#exampleForm/>
+            <button>click</button>
         """
-    
+    events:
+        "button": "click": ->
+            window.exampleform = @exampleForm
+            console.log @exampleForm.val()
     components:
         exampleForm: potato.FormFactory.FormOf(FormModel)
