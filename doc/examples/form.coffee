@@ -18,9 +18,6 @@ FormModel = potato.Model
 
     components:
         first_player: Profile
-            components:
-                age: potato.Integer
-                    label: "ageeeeee"
             static:
                 label: "First Player"
         second_player: Profile
@@ -36,8 +33,14 @@ FormExample = potato.View
         """
     events:
         "button": "click": ->
-            window.exampleform = @exampleForm
-            console.log "here"
-            console.log @exampleForm.validate()
+            #window.exampleform = @exampleForm
+            potato.log @exampleForm.validate()
+        "": "render": ->
+            @exampleForm.set_val
+                first_player:
+                    nickname: "Patoulette"
+                    age: 12
+                second_player:
+                    age: 15
     components:
         exampleForm: potato.FormFactory.FormOf(FormModel)

@@ -2185,8 +2185,7 @@ require.define("/form.js", function (require, module, exports, __dirname, __file
   Form = view.View({
     methods: {
       edit: function(model) {
-        set_val(model);
-        return this.model = model;
+        return this.set_val(model);
       },
       val: function() {
         var args;
@@ -2198,11 +2197,19 @@ require.define("/form.js", function (require, module, exports, __dirname, __file
         }
       },
       get_val: function() {
-        return void 0;
+        throw "NotImplemented";
       },
-      set_val: function(data) {},
+      set_val: function(data) {
+        throw "NotImplemented";
+      },
       is_modified: function() {
-        return false;
+        throw "NotImplemented";
+      },
+      validate: function() {
+        throw "NotImplemented";
+      },
+      print_errors: function(errors) {
+        throw "NotImplemented";
       }
     }
   });
@@ -2211,20 +2218,38 @@ require.define("/form.js", function (require, module, exports, __dirname, __file
     el: "<fieldset>",
     methods: {
       get_val: function() {
-        var k, res, v, _ref;
-        res = {};
-        _ref = this.model.components();
+        return utils.mapDict((function(c) {
+          return c.val();
+        }), this.components());
+      },
+      set_val: function(val) {
+        var k, v, _ref, _results;
+        _ref = this.components();
+        _results = [];
         for (k in _ref) {
           v = _ref[k];
-          res[k] = this[k].get_val();
+          if (val[k] != null) {
+            _results.push(this[k].set_val(val[k]));
+          } else {
+            _results.push(void 0);
+          }
         }
-        return res;
+        return _results;
       },
       validate: function() {
-        var val;
-        val = this.val();
-        return this.model.validate(val);
-      }
+        "Validate the form and print out eventual\nerrors in the form.\nReturns\n  - undefined if the value is not valid.\n  - the value of the model else.";
+
+        var validation, value;
+        value = this.val();
+        validation = this.model.validate(value);
+        if (validation.ok) {
+          return value;
+        } else {
+          this.printErrors(validation.errors);
+          return void 0;
+        }
+      },
+      print_errors: function(errors) {}
     }
   });
 
@@ -2244,9 +2269,7 @@ require.define("/form.js", function (require, module, exports, __dirname, __file
       v = _ref[k];
       if (v.type !== 'potato') {
         label = (_ref1 = v.label) != null ? _ref1 : k;
-        template += "<label>" + label + "</label>";
-        template += "<#" + k + "/>";
-        template += "<div style='clear: both;'/>";
+        template += "<label>" + label + "</label>\n<#" + k + "/>\n<div style='clear: both;'/>";
       } else {
         template += "<#" + k + "/>";
       }
@@ -2260,6 +2283,9 @@ require.define("/form.js", function (require, module, exports, __dirname, __file
     methods: {
       get_val: function() {
         return this.el.val();
+      },
+      set_val: function(val) {
+        return this.el.val(val);
       }
     }
   });
@@ -2277,6 +2303,9 @@ require.define("/form.js", function (require, module, exports, __dirname, __file
       },
       get_val: function() {
         return parseInt(this.el.val(), 10);
+      },
+      set_val: function(val) {
+        return this.el.val("" + val);
       }
     }
   });
@@ -2299,37 +2328,27 @@ require.define("/form.js", function (require, module, exports, __dirname, __file
     widgets: {
       list: function(model) {
         return JSONForm({
-          components: {
-            model: model
-          }
+          model: model
         });
       },
       json: function(model) {
         return JSONForm({
-          components: {
-            model: model
-          }
+          model: model
         });
       },
       string: function(model) {
         return InputForm({
-          components: {
-            model: model
-          }
+          model: model
         });
       },
       integer: function(model) {
         return IntegerForm({
-          components: {
-            model: model
-          }
+          model: model
         });
       },
       choice: function(model) {
         return JSONForm({
-          components: {
-            model: model
-          }
+          model: model
         });
       },
       potato: PotatoViewOf
