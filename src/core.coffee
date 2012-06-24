@@ -95,7 +95,7 @@ Potato = Tuber
             staticDic
         
         properties: (propertyDic)->
-            { __potaproperties__ : propertyDic } 
+            __potaproperties__ : propertyDic
         
         methods: (methodDic)->
             res = { __potaproto__ : methodDic }
@@ -107,8 +107,15 @@ Potato = Tuber
             res
         
         components: (componentDic)->
-            res = { __potacompo__ : componentDic }
+            __potacompo__ : componentDic
 
+        delegates: (delegateDic)->
+            delegated_methods = {}
+            for k,v of delegateDic
+                do (k,v)->
+                    delegated_methods[k] = (args...)->
+                        this[v][k] args...
+            __potaproto__: delegated_methods
 
 Potato = Potato
 

@@ -69,7 +69,6 @@ Model = eventcaster.EventCaster
         copy: (obj)->
             @__potato__.make obj
         
-        
         set: (data)->
             if data.__potato__?
                 data

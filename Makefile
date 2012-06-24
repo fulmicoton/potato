@@ -2,7 +2,7 @@ COFFEE_FILES=${shell find src -name "*.coffee"}
 JS_FILES=$(COFFEE_FILES:.coffee=.js)
 BIN=${shell npm bin}
 
-all: lib test doc/assets/potato.min.js
+all: lib doc/assets/potato.min.js doc/assets/potato.js
 
 # compiles coffee-script
 %.js : %.coffee node_modules
@@ -24,6 +24,10 @@ clean:
 
 doc/assets/potato.min.js: potato.min.js
 	cp potato.min.js doc/assets/potato.min.js
+
+
+doc/assets/potato.js: potato.js
+	cp potato.js doc/assets/potato.js
 
 serve-doc:
 	cd doc && ${BIN}/readymade serve

@@ -33,7 +33,7 @@ FormExample = potato.View
         """
     events:
         "button": "click": ->
-            #window.exampleform = @exampleForm
+            window.exampleForm = @exampleForm
             potato.log @exampleForm.validate()
         "": "render": ->
             @exampleForm.set_val

@@ -2,16 +2,17 @@ utils = require './utils'
 core = require './core'
 model = require './model'
 view = require './view'
+widget = require './widget'
 
 Form = view.View
     methods:
         edit: (model)->
             @set_val model
-        val: (args...)-> 
-            if args.length == 0
+        val: (value)-> 
+            if not value?
                 @get_val()
             else
-                @set_val args...
+                @set_val value
         get_val: ->
             throw "NotImplemented"
         set_val: (data)->
@@ -27,7 +28,11 @@ PotatoView = Form
     el: "<fieldset>"
     methods:
         get_val: ->
-            utils.mapDict ((c)->c.val()), @components()
+            res = {}
+            for k,v of @components()
+                res[k] = this[k].get_val()
+            return res
+
         set_val: (val)->
             for k,v of @components()
                 if val[k]?
@@ -41,23 +46,32 @@ PotatoView = Form
               - the value of the model else.
             """
             value = @val()
-            validation = @model.validate value
+            validation = @__potato__.model.validate value
             if validation.ok
+                @print_valid()
                 value
             else
-                @printErrors validation.errors
+                @print_errors validation.errors
                 undefined
         print_errors: (errors)->
+            for k,v of @components()
+                if errors[k]?
+                    this[k].print_errors errors[k]
+                else
+                    this[k].print_valid()
 
+        print_valid: ->
+            for k,v of @components()
+                this[k].print_valid()
 
 PotatoViewOf = (model)->
     content = {}
     content.components = utils.mapDict ((model)->FormFactory.FormOf model), model.components()
-    content.model = model
+    utils.rextend content, static: model: model
     template =''
     if model.label
         template += "<legend>#{model.label}</legend>"
-    for k,v of content.model.components()
+    for k,v of model.components()
         if v.type != 'potato'
             label = v.label ? k
             template += """
@@ -70,45 +84,72 @@ PotatoViewOf = (model)->
     content.template = template
     PotatoView content
 
-InputForm = Form
+Input = view.View
     el: "<input type=text>"
     methods:
         get_val: ->
             @el.val()
         set_val: (val)->
             @el.val val
-            
-IntegerForm = Form
-    el: "<input type='number' step='1' required='' placeholder=''>"
-    methods:
-        onRender: ->
-            integerModel = @components().model
-            @el.attr "min", integerModel.MIN
-            @el.attr "max", integerModel.MAX
-            @el.attr "step", integerModel.STEP
-            @el.attr "placeholder", integerModel.help ? integerModel.label ? ""
-        get_val: ->
-            parseInt @el.val(),10
-        set_val: (val)->
-            @el.val ""+val
+        val: (value)->
+            if not value?
+                @get_val()
+            else
+                @set_val value
 
-JSONForm = Form
-    template: "{}"
-    el: "<textarea>"
+Field = Form
+    template: "<#input/><#error/>"
+    components:
+        input: Input
+        error: widget.TemplateView
+            el: "<div class='error_msg'>"
+            template: "{{errors}}"
+    delegates:
+        get_val: "input"
+        set_val: "input"
     methods:
-        get_val: ->
-            JSON.parse @el.val()
-        set_val: (val)->
-            @el.val JSON.stringify val
+        print_errors: (errors)->
+            @error.render errors: errors
+        print_valid: ->
+            @error.render errors: ""
+
+TextField = Field
+
+IntegerForm = Field
+    components: 
+        input : Input
+            el: "<input type='number' step='1' required='' placeholder=''>"
+            methods:
+                onRender: ->
+                    integerModel = @components().model
+                    @el.attr "min", integerModel.MIN
+                    @el.attr "max", integerModel.MAX
+                    @el.attr "step", integerModel.STEP
+                    @el.attr "placeholder", integerModel.help ? integerModel.label ? ""
+                get_val: ->
+                    parseInt (@el.val()),10
+                set_val: (val)->
+                    @el.val ""+val
+
+JSONForm = Field
+    components:
+        input: Input
+            template: "{}"
+            el: "<textarea>"
+            methods:
+                get_val: ->
+                    JSON.parse @el.val()
+                set_val: (val)->
+                    @el.val JSON.stringify val
 
 FormFactory = core.Tuber
     __sectionHandlers__: {}
     widgets:
-        list:    (model)-> JSONForm    model: model
-        json:    (model)-> JSONForm    model: model
-        string:  (model)-> InputForm   model: model
-        integer: (model)-> IntegerForm model: model
-        choice:  (model)-> JSONForm    model: model
+        list:    (model)-> JSONForm    static: model: model
+        json:    (model)-> JSONForm    static: model: model
+        string:  (model)-> TextField   static: model: model
+        integer: (model)-> IntegerForm static: model: model
+        choice:  (model)-> JSONForm    static: model: model
         potato: PotatoViewOf
     FormOf: (model)->
         @widgets[model.type](model)
