@@ -11,7 +11,7 @@ TodoForm = potato.View
                 newTodoData = 
                     text : @find("input").val()
                     done: false
-                if TodoModel.isValid newTodoData
+                if TodoModel.validate newTodoData
                     newTodo = TodoModel.make newTodoData
                     @trigger "submit", newTodo
     methods:

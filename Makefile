@@ -29,7 +29,7 @@ doc/assets/potato.min.js: potato.min.js
 doc/assets/potato.js: potato.js
 	cp potato.js doc/assets/potato.js
 
-serve-doc:
+serve-doc: lib doc/assets/potato.js
 	cd doc && ${BIN}/readymade serve
 
 # build all lib files

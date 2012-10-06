@@ -31,16 +31,17 @@ NonEmptyString = String
     validate: (data)->
         validAsString = String.validate data
         if validAsString.ok and data != ""
-            validate false, "Must not be empty."
+            ok: true
         else
-            validAsString 
+            ok: false
+            errors: "Must not be empty."
 
 Boolean = core.Literal
     type: 'boolean'
     default: false
     validate: (data)->
         if (typeof data) == "boolean"
-            validate date
+            ok: true
         else
             ok: false
             errors: "Boolean expected."
