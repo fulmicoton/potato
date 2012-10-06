@@ -29,11 +29,11 @@ doc/assets/potato.min.js: potato.min.js
 doc/assets/potato.js: potato.js
 	cp potato.js doc/assets/potato.js
 
-serve-doc: lib doc/assets/potato.js
-	cd doc && ${BIN}/readymade serve
+serve-doc: node_modules
+	${BIN}/readymade serve -f Makefile
 
 # build all lib files
-lib: potato.js potato.min.js potato-browserify.js potato-browserify-min.js
+lib: potato.js potato.min.js potato-browserify.js potato-browserify.min.js
 
 potato.js: ${JS_FILES} node_modules
 	${BIN}/browserify -e src/entry-point-browserify.js --outfile ./potato.js

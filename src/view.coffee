@@ -2,7 +2,7 @@ core = require './core'
 model = require './model'
 eventcaster = require './eventcaster'
 utils = require './utils'
-hogan = require 'hogan'
+hogan = require 'hogan.js'
 
 TEMPLATE_PLACEHOLDER_PTN = /<#\s*([\w_]+)\s*\/?>/
 
