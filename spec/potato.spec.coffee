@@ -191,6 +191,32 @@ describe 'potato.Model', ->
             ok: true
         
 
+describe 'potato.CollectionOf', ->
+    
+    it 'can be made', ->
+        A = potato.CollectionOf(potato.String)
+        a = A.make()
+        expect(a.toData()).toEqual([])
+
+    it 'we can add data', ->
+        A = potato.CollectionOf(potato.String)
+        a = A.make()
+        a.addData "coucou"
+        expect(a.toData()).toEqual(["coucou"])
+
+    it 'we can set data', ->
+        A = potato.CollectionOf(potato.String)
+        a = A.make()
+        a.setData ["a", "b"]
+        expect(a.toData()).toEqual ["a", "b"]
+
+    it 'we can set data', ->
+        A = potato.CollectionOf(potato.String)
+        a = A.make()
+        a.setData ["a", "b"]
+        expect(a.toJSON()).toEqual JSON.stringify a.toData()
+
+
 describe 'potato.View', ->
                 
     it 'offers properties', ->

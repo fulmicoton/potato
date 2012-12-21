@@ -2,7 +2,6 @@ core = require './core'
 eventcaster = require './eventcaster'
 utils = require './utils'
 
-
 Integer = core.Literal
     type: 'integer'
     MIN: 0
@@ -123,32 +122,29 @@ Model = eventcaster.EventCaster
             @setData obj, data
 
 CollectionOf = (itemType) ->
-    
     Model
         components:
             __items: core.ListOf(itemType)
-        
         methods:
             add: (item)->
-                @__items.push item
+                @items().push item
                 @trigger "add", item
                 @trigger "change"
-                item.bind "change", => @trigger "change"
-                item.bind "delete", => @remove item
+                if item.bind?
+                    item.bind "change", => @trigger "change"
+                    item.bind "delete", => @remove item
                 this
-            
             remove: (item)->
                 nbRemovedEl = utils.removeEl @__items, item, 1
                 if nbRemovedEl>0
                     @trigger "change"
-            
             filter: (predicate)->
                 els = []
                 for el in @items()
                     if predicate(el)
                         els.push el
                 els
-            
+
             items: ->
                 @__items
             
@@ -160,12 +156,10 @@ CollectionOf = (itemType) ->
                 this
 
             toData: ->
-                @__potato__.__content___.components.items.toData this
+                @components().__items.toData this.__items
             
             addData: (itemData)->
                 @add itemType.fromData itemData
-
-
         static:
             setData: (obj,data)->
                 obj.__items = []

@@ -1,9 +1,9 @@
 {
   "name": "potato"
 , "description": ""
-, "version": "0.0.3"
+, "version": "0.0.9"
 , "author": "Paul Masurel <paul.masurel@gmail.com>"
-, "private": true
+, "private": false
 , "engines": ["node >= 0.4.0"]
 ,  "licenses":     [{
     "type":       "MIT",

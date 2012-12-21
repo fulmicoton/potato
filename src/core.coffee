@@ -198,6 +198,8 @@ Literal = Tuber
             val
         else
             pick  @default
+    fromData: (val)->
+        val
     toJSON: (val)->
         JSON.stringify @toData val
     toData: (val)->
@@ -219,7 +221,7 @@ List = Literal
         default: Literal
     
     toData: (obj)->
-        @__potato__.itemType.toData it for it in obj
+        @itemType.toData it for it in obj
     
     add: (obj,item)->
         obj.push item
