@@ -115,6 +115,17 @@ Field = Form
 
 TextField = Field
 
+
+Checkbox = Field
+    components: 
+        input : Input
+            el: "<input type='checkbox'>"
+            methods:
+                get_val: ->
+                    @el.attr("checked") == "checked"
+                set_val: (val)->
+                    @el.attr "checked", val
+
 IntegerForm = Field
     components: 
         input : Input
@@ -145,6 +156,7 @@ JSONForm = Field
 FormFactory = core.Tuber
     __sectionHandlers__: {}
     widgets:
+        "boolean": (model)-> Checkbox static: model: model
         list:    (model)-> JSONForm    static: model: model
         json:    (model)-> JSONForm    static: model: model
         string:  (model)-> TextField   static: model: model

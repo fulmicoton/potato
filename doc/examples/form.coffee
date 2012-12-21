@@ -13,6 +13,9 @@ Profile = potato.Model
             label: "Age"
             MIN: 14
             MAX: 130
+        admin: potato.Boolean
+            label: "Admin"
+
 
 FormModel = potato.Model
 
