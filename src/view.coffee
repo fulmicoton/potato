@@ -80,12 +80,17 @@ View = View
             elDsl = elDsl.trim()
             if elDsl==""
                 return this
-            if elDsl[0] == "@"
+            else if elDsl[0] == "@"
                 sep = POTATO_SELECTOR_DSL_SEP.exec(elDsl).index
                 head = elDsl[1...sep]
                 elDsl = elDsl[sep+1...]
-                target = this[head]
-                target.find elDsl
+                window.el = this[head]
+                # little hack to handle the @el case.
+                    # jquery's find "" does not returns this.
+                if elDsl.trim() == ""
+                    this[head]
+                else
+                    this[head].find elDsl
             else
                 @el.find elDsl
         
@@ -93,7 +98,7 @@ View = View
             for [el, evt, handler] in @__bound__
                 el.unbind evt, handler
             this
-
+        
         bindEvents: ->
             @unbindEvents()
             me = this

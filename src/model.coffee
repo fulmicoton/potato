@@ -147,6 +147,13 @@ CollectionOf = (itemType) ->
 
             items: ->
                 @__items
+
+            item: (itemId, value)->
+                selectedItem = @__items[itemId]  
+                if not value?
+                    selectedItem
+                else
+                    @__items[itemId] = @components().__items.itemType.set selectedItem, value
             
             setData: (data)->
                 @__items = []
@@ -160,6 +167,10 @@ CollectionOf = (itemType) ->
             
             addData: (itemData)->
                 @add itemType.fromData itemData
+
+            size: ->
+                @__items.length
+        
         static:
             setData: (obj,data)->
                 obj.__items = []

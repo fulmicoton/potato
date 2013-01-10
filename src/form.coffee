@@ -34,9 +34,13 @@ PotatoView = Form
             return res
 
         set_val: (val)->
+            changed = false
             for k,v of @components()
                 if val[k]?
-                    this[k].set_val val[k]
+                    changed = changed or (this[k].set_val val[k])
+            if changed
+                @trigger "change"
+        
         validate: ->
             """
             Validate the form and print out eventual
@@ -68,7 +72,7 @@ PotatoViewOf = (model)->
     content = {}
     content.components = utils.mapDict ((model)->FormFactory.FormOf model), model.components()
     utils.rextend content, static: model: model
-    template =''
+    template = ""
     if model.label
         template += "<legend>#{model.label}</legend>"
     for k,v of model.components()
@@ -90,7 +94,12 @@ Input = view.View
         get_val: ->
             @el.val()
         set_val: (val)->
-            @el.val val
+            if val != @get_val()
+                @el.val val
+                @trigger "change"
+                true
+            else
+                false
         val: (value)->
             if not value?
                 @get_val()
@@ -112,9 +121,12 @@ Field = Form
             @error.render errors: errors
         print_valid: ->
             @error.render errors: ""
+    events:
+        "@input":
+            "change": (args...)->
+                @trigger "change", args...
 
 TextField = Field
-
 
 Checkbox = Field
     components: 
@@ -124,7 +136,16 @@ Checkbox = Field
                 get_val: ->
                     @el.attr("checked") == "checked"
                 set_val: (val)->
-                    @el.attr "checked", val
+                    if val != @get_val()
+                        window.checkbox = this
+                        @el.attr "checked", val
+                        @trigger "change"
+                        true
+                    else
+                        false
+            events:
+                "@el": "change": (args...)->
+                    @trigger "change"
 
 IntegerForm = Field
     components: 
@@ -140,8 +161,11 @@ IntegerForm = Field
                 get_val: ->
                     parseInt (@el.val()),10
                 set_val: (val)->
-                    @el.val ""+val
-
+                    if val != @get_val()
+                        @el.val ""+val
+                        true
+                    else 
+                        false
 JSONForm = Field
     components:
         input: Input
@@ -151,7 +175,12 @@ JSONForm = Field
                 get_val: ->
                     JSON.parse @el.val()
                 set_val: (val)->
-                    @el.val JSON.stringify val
+                    if JSON.stringify val != @el.val()
+                        @el.val JSON.stringify val
+                        @trigger "change"
+                        true
+                    else
+                        false
 
 FormFactory = core.Tuber
     __sectionHandlers__: {}
