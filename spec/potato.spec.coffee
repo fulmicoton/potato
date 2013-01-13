@@ -1,5 +1,9 @@
 potato = require '../'
 
+window = require('jsdom').jsdom('<html><head></head><body></body></html>').createWindow()
+$ = require "jquery"
+
+
 describe 'potato.Literal', ->
     
     it 'allows instantiation', ->
@@ -191,6 +195,32 @@ describe 'potato.Model', ->
             ok: true
         
 
+describe 'potato.CollectionOf', ->
+    
+    it 'can be made', ->
+        A = potato.CollectionOf(potato.String)
+        a = A.make()
+        expect(a.toData()).toEqual([])
+
+    it 'we can add data', ->
+        A = potato.CollectionOf(potato.String)
+        a = A.make()
+        a.addData "coucou"
+        expect(a.toData()).toEqual(["coucou"])
+
+    it 'we can set data', ->
+        A = potato.CollectionOf(potato.String)
+        a = A.make()
+        a.setData ["a", "b"]
+        expect(a.toData()).toEqual ["a", "b"]
+
+    it 'we can set data', ->
+        A = potato.CollectionOf(potato.String)
+        a = A.make()
+        a.setData ["a", "b"]
+        expect(a.toJSON()).toEqual JSON.stringify a.toData()
+
+
 describe 'potato.View', ->
                 
     it 'offers properties', ->
@@ -329,3 +359,17 @@ describe 'potato.split', ->
         expect(chunks).toEqual(["abcddefddgh"])
         chunks = potato.split "abcddefddgh", /d+/, 2
         expect(chunks).toEqual(["abc", "efddgh"])
+
+describe "potato.View", ->
+
+    it 'can be loaded into a DOM element', ->
+        $body = $ "body"
+        expect($body.length).toEqual 1
+        TestView = potato.View
+            template: "hello {{ name }}"
+            methods:
+                context: (parent)->name: "toto"
+        TestView.loadInto $ "body"
+        expect($body.html()).toEqual "hello toto"
+
+    it 'can receive a context from its parent', ->

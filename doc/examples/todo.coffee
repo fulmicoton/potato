@@ -47,7 +47,7 @@ TodoExample = potato.View
         """
 
     model: potato.CollectionOf(TodoModel)
-        methods:
+        methods:        
             remaining: ->
                 ( @filter (todo)->not todo.done ).length
 
@@ -55,9 +55,11 @@ TodoExample = potato.View
         addToDoForm: TodoForm
         todoListView: potato.CollectionViewOf(TodoView)
             el: "<ul class='todos'>"
-        counter: potato.TemplateView
+        counter: potato.View            
             template: "{{ count }} remaining"
-            context: -> count: @model.remaining()
+            methods:
+                context: (parent)->
+                    count: parent.model.remaining()
 
     events:   
         "@addToDoForm": submit: (todo)->

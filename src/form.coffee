@@ -23,6 +23,17 @@ Form = view.View
             throw "NotImplemented"
         print_errors: (errors)->
             throw "NotImplemented"
+    static:
+        context: (obj, parent)->
+            if parent?
+                parent
+            else
+                undefined
+        render: (obj, parent)->
+            view.View.render obj, parent
+            context = @context parent
+            if context != undefined
+                obj.set_val context
 
 PotatoView = Form
     el: "<fieldset>"
@@ -34,9 +45,13 @@ PotatoView = Form
             return res
 
         set_val: (val)->
+            changed = false
             for k,v of @components()
                 if val[k]?
-                    this[k].set_val val[k]
+                    changed = changed or (this[k].set_val val[k])
+            if changed
+                @trigger "change"
+        
         validate: ->
             """
             Validate the form and print out eventual
@@ -68,7 +83,7 @@ PotatoViewOf = (model)->
     content = {}
     content.components = utils.mapDict ((model)->FormFactory.FormOf model), model.components()
     utils.rextend content, static: model: model
-    template =''
+    template = ""
     if model.label
         template += "<legend>#{model.label}</legend>"
     for k,v of model.components()
@@ -90,7 +105,12 @@ Input = view.View
         get_val: ->
             @el.val()
         set_val: (val)->
-            @el.val val
+            if val != @get_val()
+                @el.val val
+                @trigger "change"
+                true
+            else
+                false
         val: (value)->
             if not value?
                 @get_val()
@@ -101,7 +121,7 @@ Field = Form
     template: "<#input/><#error/>"
     components:
         input: Input
-        error: widget.TemplateView
+        error: view.View
             el: "<div class='error_msg'>"
             template: "{{errors}}"
     delegates:
@@ -112,8 +132,31 @@ Field = Form
             @error.render errors: errors
         print_valid: ->
             @error.render errors: ""
+    events:
+        "@input":
+            "change": (args...)->
+                @trigger "change", args...
 
 TextField = Field
+
+Checkbox = Field
+    components: 
+        input : Input
+            el: "<input type='checkbox'>"
+            methods:
+                get_val: ->
+                    @el.attr("checked") == "checked"
+                set_val: (val)->
+                    if val != @get_val()
+                        window.checkbox = this
+                        @el.attr "checked", val
+                        @trigger "change"
+                        true
+                    else
+                        false
+            events:
+                "@el": "change": (args...)->
+                    @trigger "change"
 
 IntegerForm = Field
     components: 
@@ -129,8 +172,11 @@ IntegerForm = Field
                 get_val: ->
                     parseInt (@el.val()),10
                 set_val: (val)->
-                    @el.val ""+val
-
+                    if val != @get_val()
+                        @el.val ""+val
+                        true
+                    else 
+                        false
 JSONForm = Field
     components:
         input: Input
@@ -140,7 +186,12 @@ JSONForm = Field
                 get_val: ->
                     JSON.parse @el.val()
                 set_val: (val)->
-                    @el.val JSON.stringify val
+                    if JSON.stringify val != @el.val()
+                        @el.val JSON.stringify val
+                        @trigger "change"
+                        true
+                    else
+                        false
 
 FormFactory = core.Tuber
     __sectionHandlers__: {}
@@ -150,6 +201,7 @@ FormFactory = core.Tuber
         string:  (model)-> TextField   { static: model: model }
         integer: (model)-> IntegerForm { static: model: model } 
         choice:  (model)-> JSONForm { static: model: model }
+        "boolean": (model)-> Checkbox  { static: model: model }
         potato: PotatoViewOf
     FormOf: (model)->
         @widgets[model.type](model)

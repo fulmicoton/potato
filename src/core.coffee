@@ -100,6 +100,8 @@ Potato = Tuber
         methods: (methodDic)->
             res = { __potaproto__ : methodDic }
             for k,v of methodDic
+                # appending the static version
+                # of the method.
                 do (k,v) ->
                     if not res[k]?
                         res[k] = (self,args...)->
@@ -198,6 +200,8 @@ Literal = Tuber
             val
         else
             pick  @default
+    fromData: (val)->
+        val
     toJSON: (val)->
         JSON.stringify @toData val
     toData: (val)->
@@ -219,7 +223,7 @@ List = Literal
         default: Literal
     
     toData: (obj)->
-        @__potato__.itemType.toData it for it in obj
+        @itemType.toData it for it in obj
     
     add: (obj,item)->
         obj.push item

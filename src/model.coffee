@@ -2,7 +2,6 @@ core = require './core'
 eventcaster = require './eventcaster'
 utils = require './utils'
 
-
 Integer = core.Literal
     type: 'integer'
     MIN: 0
@@ -117,35 +116,41 @@ Model = eventcaster.EventCaster
             @setData obj, data
 
 CollectionOf = (itemType) ->
-    
     Model
         components:
             __items: core.ListOf(itemType)
-        
+
         methods:
             add: (item)->
-                @__items.push item
+                @items().push item
                 @trigger "add", item
                 @trigger "change"
-                item.bind "change", => @trigger "change"
-                item.bind "destroy", => @remove item
+                if item.bind?
+                    item.bind "change", => @trigger "change"
+                    item.bind "destroy", => @remove item
                 this
             
             remove: (item)->
-                alert i+1
                 nbRemovedEl = utils.removeEl @__items, item, 1
                 if nbRemovedEl>0
                     @trigger "change"
-            
+
             filter: (predicate)->
                 els = []
                 for el in @items()
                     if predicate(el)
                         els.push el
                 els
-            
+
             items: ->
                 @__items
+
+            item: (itemId, value)->
+                selectedItem = @__items[itemId]  
+                if not value?
+                    selectedItem
+                else
+                    @__items[itemId] = @components().__items.itemType.set selectedItem, value
             
             setData: (data)->
                 @__items = []
@@ -155,19 +160,21 @@ CollectionOf = (itemType) ->
                 this
 
             toData: ->
-                @__potato__.__content___.components.items.toData this
+                @components().__items.toData this.__items
             
             addData: (itemData)->
                 @add itemType.fromData itemData
 
-
-        static:
-            setData: (obj,data)->
-                obj.__items = []
+            size: ->
+                @__items.length
+        
+            setData: (data)->
+                @__items = []
                 for itemData in data
-                    obj.addData itemData
-                obj
-
+                    @addData itemData
+                this
+        
+        static:
             validate: (data)->
                 validationResult = ok: true
                 for itemId, item of data
@@ -177,16 +184,6 @@ CollectionOf = (itemType) ->
                             validationResult.errors = {}
                         validationResult.errors[itemId] = itemValidation.errors
                 validationResult
-
-###
-TODO Add a view model.
-
-ViewModel = potato.Model
-    __sectionHandlers__: 
-        model: (val)->
-            properties:
-                model: model
-###
 
 model =
     Model: Model

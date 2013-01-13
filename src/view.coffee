@@ -47,6 +47,12 @@ View = View
     properties:
         __bound__: core.ListOf(core.Potato)
     methods:
+        context: (parent)->
+            if parent?
+                parent
+            else
+                this
+        
         destroy: ->
             @unbindEvents()
             @el.remove()
@@ -63,28 +69,31 @@ View = View
         autoRefresh: ->
             @model.bind "change", =>
                 @render()
-        
-        context: -> this
-        
-        renderTemplate: ->
-            @el.html @__potato__.__template__ @context()
+
+        renderTemplate: (context)->
+            @el.html @__potato__.__template__ context
             for componentId, component of @components()
                 if component.__isView__?
                     componentContainer = @el.find "#__ELEMENT_#{componentId}"
                     if componentContainer.size()==1
-                        this[componentId].render this
+                        this[componentId].render context
                         componentContainer.replaceWith this[componentId].el
-        
+
         find: (elDsl)->
             elDsl = elDsl.trim()
             if elDsl==""
                 return this
-            if elDsl[0] == "@"
+            else if elDsl[0] == "@"
                 sep = POTATO_SELECTOR_DSL_SEP.exec(elDsl).index
                 head = elDsl[1...sep]
                 elDsl = elDsl[sep+1...]
-                target = this[head]
-                target.find elDsl
+                window.el = this[head]
+                # little hack to handle the @el case.
+                # jquery's find "" does not returns this.
+                if elDsl.trim() == ""
+                    this[head]
+                else
+                    this[head].find elDsl
             else
                 @el.find elDsl
         
@@ -92,7 +101,7 @@ View = View
             for [el, evt, handler] in @__bound__
                 el.unbind evt, handler
             this
-
+        
         bindEvents: ->
             @unbindEvents()
             me = this
@@ -104,12 +113,13 @@ View = View
                         el.bind evt, handler
                         me.__bound__.push [el, evt, handler]
             this
-        
-        render: ->
-            @renderTemplate()
+
+        render: (parent)->
+            context = @context parent   
+            @renderTemplate context
             @bindEvents()
             @trigger "render"
-        
+
     static:
         keyHandlers:
             el: (content, tagValue)->
