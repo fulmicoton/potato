@@ -23,17 +23,20 @@ Form = view.View
             throw "NotImplemented"
         print_errors: (errors)->
             throw "NotImplemented"
+        render: (parent)->
+            context = @context parent
+            @renderTemplate context
+            @bindEvents()
+            if context != undefined
+                @set_val context
+            @trigger "render", context
     static:
         context: (obj, parent)->
             if parent?
                 parent
             else
                 undefined
-        render: (obj, parent)->
-            view.View.render obj, parent
-            context = @context parent
-            if context != undefined
-                obj.set_val context
+
 
 PotatoView = Form
     el: "<fieldset>"

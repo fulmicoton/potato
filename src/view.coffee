@@ -118,7 +118,7 @@ View = View
             context = @context parent   
             @renderTemplate context
             @bindEvents()
-            @trigger "render"
+            @trigger "render", context
 
     static:
         keyHandlers:
