@@ -11,40 +11,36 @@ Integer = core.Literal
     default: 0
     validate: (data)->
         if (typeof data) == "number" and (data == Math.round data)
-            ok: true
+            { ok: true }
         else
-            ok: false
-            errors: "#{data} is not an integer" 
+            { ok: false, errors: "#{data} is not an integer" }
 
 String = core.Literal
     type: 'string'
     default: ""
     validate: (data)->
         if (typeof data) == "string"
-            ok: true
+            { ok: true }
         else
-            ok: false
-            errors: "Expected a string."
+            { ok: false, errors: "Expected a string." }
 
 NonEmptyString = String
     default: "something..."
     validate: (data)->
         validAsString = String.validate data
         if validAsString.ok and data != ""
-            ok: true
+            { ok: true }
         else
-            ok: false
-            errors: "Must not be empty."
+            { ok: false, errors: "Must not be empty." }
 
 Boolean = core.Literal
     type: 'boolean'
     default: false
     validate: (data)->
         if (typeof data) == "boolean"
-            ok: true
+            { ok: true }
         else
-            ok: false
-            errors: "Boolean expected."
+            { ok: false, errors: "Boolean expected." }
 
 
 Model = eventcaster.EventCaster
@@ -54,7 +50,7 @@ Model = eventcaster.EventCaster
             @__potato__.validate args... 
 
         destroy: ->
-            @trigger "delete"
+            @trigger "destroy"
 
         # Returns JSON String describing the state.
         toJSON: ->
@@ -95,14 +91,12 @@ Model = eventcaster.EventCaster
                 console.log "Selection DSL for model should start with an @"
                 return null
         url: ->
-        
+    
     static:
         validate: (data)->
-            ###
-            Validate works on raw data.
-            By data think JavaScript literals. 
-            Think deserialized JSON.
-            ###
+            # Validate works on raw data.
+            # My data think JavaScript literals. 
+            # Think deserialized JSON.
             validationResult = ok : true
             for cid, component of @components()
                 componentValidation = component.validate data[cid]
@@ -112,7 +106,7 @@ Model = eventcaster.EventCaster
                         validationResult.errors = {}
                     validationResult.errors[cid] = componentValidation.errors
             validationResult
-                    
+        
         # Returns an object from this JSON data.        
         fromJSON: (json)->
             data = JSON.parse json
@@ -134,10 +128,11 @@ CollectionOf = (itemType) ->
                 @trigger "add", item
                 @trigger "change"
                 item.bind "change", => @trigger "change"
-                item.bind "delete", => @remove item
+                item.bind "destroy", => @remove item
                 this
             
             remove: (item)->
+                alert i+1
                 nbRemovedEl = utils.removeEl @__items, item, 1
                 if nbRemovedEl>0
                     @trigger "change"

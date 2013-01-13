@@ -33,7 +33,7 @@ TodoView = potato.View
             @model.destroy()
         "@model":
             "change": -> @render()
-            "delete": -> @destroy()
+            "destroy": -> @destroy()
     methods:
         tagChecked: ->
             if @model.done then "checked" else ""

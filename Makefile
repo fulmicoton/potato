@@ -39,7 +39,7 @@ potato.js: ${JS_FILES} node_modules
 	${BIN}/browserify -e src/entry-point-browserify.js --outfile ./potato.js
 
 potato-browserify.js: ${JS_FILES} node_modules
-	${BIN}/browserify src/potato.js --outfile ./potato-browserify.js
+	${BIN}/browserify --debug src/potato.js --outfile ./potato-browserify.js
 
 # launch tests
 test: ${JS_FILES} node_modules

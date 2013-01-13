@@ -37,9 +37,8 @@ View = eventcaster.EventCaster
             __potaproperties__ : model : v
         el: (v)->
             __potaproperties__ :
-                el:
-                    HTMLElement
-                        tagName: v
+                el: HTMLElement
+                    tagName: v
 
 View = View
     template: ''
@@ -51,7 +50,7 @@ View = View
         destroy: ->
             @unbindEvents()
             @el.remove()
-            @trigger "delete"
+            @trigger "destroy"
 
         setModel: (model)->
             @model = model
@@ -142,23 +141,24 @@ CollectionViewOf = (itemType) ->
             
             setModel: (itemModelList)->
                 @model = itemModelList
-                @buildItemsFromModel()
+                @__buildItemsFromModel()
             
             __addViewItem: (model)->
                 newItem = itemType.make()
                 newItem.setModel model
                 @__items.push newItem
-                newItem.bind "delete", =>
+                newItem.bind "destroy", =>
                     @remove newItem
                 newItem
             
-            deleteAllItems: ->
+            destroyAllItems: ->
                 for item in @__items
-                    item.delete?()
+                    if item.destroy?
+                        item.destroy()
                 @__items = []
 
             __buildItemsFromModel: ->
-                @deleteAllItems()
+                @destroyAllItems()
                 for item in @model
                     @__addViewItem item
                 this

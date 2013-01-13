@@ -36,14 +36,12 @@ genericSplitOnce = (splitter)->
     typeSpecificSplitOnce splitter
 
 split = (s, splitter, n=-1)->
-    ###
-    Split the string at the positions of the splitter.
-    The splitter may be either a regexp or a string.
-    
-    If a parameter n>0 is given, the string is split only
-    at the position of the first n-1 occurrences,
-    therefore  resulting in a list of n substrings.
-    ###
+    # Split the string at the positions of the splitter.
+    # The splitter may be either a regexp or a string.
+    # 
+    # If a parameter n>0 is given, the string is split only
+    # at the position of the first n-1 occurrences,
+    # therefore  resulting in a list of n substrings.
     splitOnce = genericSplitOnce splitter
     chunks = []
     while n!=1
@@ -59,13 +57,9 @@ split = (s, splitter, n=-1)->
     return chunks
 
 removeEl = (arr, el, n=1)->
-    ###
-      Remove the n first occurrences of 
-    el in array arr.
-      Removes all the occurences if given -1.
-      Returns the number of suppressed
-    elements
-    ###
+    # Remove the n first occurrences of el in array arr.
+    # Removes all the occurences if given -1.
+    # Returns the number of suppressed elements
     nbOcc = n
     while (nbOcc != 0)
         elId = arr.indexOf el

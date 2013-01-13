@@ -145,11 +145,11 @@ JSONForm = Field
 FormFactory = core.Tuber
     __sectionHandlers__: {}
     widgets:
-        list:    (model)-> JSONForm    static: model: model
-        json:    (model)-> JSONForm    static: model: model
-        string:  (model)-> TextField   static: model: model
-        integer: (model)-> IntegerForm static: model: model
-        choice:  (model)-> JSONForm    static: model: model
+        list:    (model)-> JSONForm    { static: model: model }
+        json:    (model)-> JSONForm    { static: model: model }
+        string:  (model)-> TextField   { static: model: model }
+        integer: (model)-> IntegerForm { static: model: model } 
+        choice:  (model)-> JSONForm { static: model: model }
         potato: PotatoViewOf
     FormOf: (model)->
         @widgets[model.type](model)
