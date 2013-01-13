@@ -180,6 +180,7 @@ IntegerForm = Field
                         true
                     else 
                         false
+
 JSONForm = Field
     components:
         input: Input
@@ -196,6 +197,53 @@ JSONForm = Field
                     else
                         false
 
+optionid = 0
+
+RadioBoxesOf = (EnumModel) -> Field
+    static:
+        model: EnumModel
+    components:
+        input: Input
+            methods:
+                context: ->
+                    optionid += 1
+                    {
+                        choices: EnumModel.choices
+                        choiceid: "options#" + optionid
+                    }
+                get_val: ->
+                    for radiobtn in @el.find("input")
+                        $radiobtn = $ radiobtn
+                        if $radiobtn.is(':checked')
+                            return $radiobtn.attr "value"
+                    return null
+
+                set_val: (val)->
+                    if val != @get_val()
+                        for radiobtn in @el.find("input")
+                            $radiobtn = $ radiobtn
+                            checked = ($radiobtn.attr("value")== val)
+                            $radiobtn.prop "checked", checked
+                        true
+                    else
+                        false
+
+            template: """
+                {{#choices}}
+                    <input type = "radio"
+                       id = "{{ id }}"
+                       name = "{{ choiceid }}"
+                       value = "{{ id }}"/>
+                    <label for="{{ id }}">{{ name }}</label><br/>
+                    {{/choices}}
+                """
+            el: "<div class='input-list'>"
+            properties:
+                choiceid: model.Integer
+    events:
+        "@input @el input": "change": ->
+            @trigger "change"
+
 FormFactory = core.Tuber
     __sectionHandlers__: {}
     widgets:
@@ -203,7 +251,7 @@ FormFactory = core.Tuber
         json:    (model)-> JSONForm    { static: model: model }
         string:  (model)-> TextField   { static: model: model }
         integer: (model)-> IntegerForm { static: model: model } 
-        choice:  (model)-> JSONForm { static: model: model }
+        radio:    RadioBoxesOf
         "boolean": (model)-> Checkbox  { static: model: model }
         potato: PotatoViewOf
     FormOf: (model)->

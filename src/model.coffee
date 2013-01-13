@@ -42,6 +42,16 @@ Boolean = core.Literal
             { ok: false, errors: "Boolean expected." }
 
 
+Enum = String
+    type: 'radio'
+    default: "yes"
+    choices: [ {id: "yes", name: "yes"}, {id: "no", name: "no"}]
+    validate: (value)->
+        for choice in @choices
+            if choice.id == value
+                return { ok: true }
+        { ok: false, errors: "Enum value <" + value + "> not in " + @choices+ "."}
+
 Model = eventcaster.EventCaster
     
     methods:
@@ -186,6 +196,6 @@ model =
     String: String
     Boolean: Boolean
     NonEmptyString: NonEmptyString
-#    ViewModel: ViewModel
+    Enum: Enum
 
 module.exports = model
