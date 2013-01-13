@@ -48,6 +48,12 @@ View = View
     properties:
         __bound__: core.ListOf(core.Potato)
     methods:
+        context: (parent)->
+            if parent?
+                parent
+            else
+                this
+        
         destroy: ->
             @unbindEvents()
             @el.remove()
@@ -64,18 +70,16 @@ View = View
         autoRefresh: ->
             @model.bind "change", =>
                 @render()
-        
-        context: -> this
-        
-        renderTemplate: ->
-            @el.html @__potato__.__template__ @context()
+
+        renderTemplate: (context)->
+            @el.html @__potato__.__template__ context
             for componentId, component of @components()
                 if component.__isView__?
                     componentContainer = @el.find "#__ELEMENT_#{componentId}"
                     if componentContainer.size()==1
-                        this[componentId].render this
+                        this[componentId].render context
                         componentContainer.replaceWith this[componentId].el
-        
+
         find: (elDsl)->
             elDsl = elDsl.trim()
             if elDsl==""
@@ -86,7 +90,7 @@ View = View
                 elDsl = elDsl[sep+1...]
                 window.el = this[head]
                 # little hack to handle the @el case.
-                    # jquery's find "" does not returns this.
+                # jquery's find "" does not returns this.
                 if elDsl.trim() == ""
                     this[head]
                 else
@@ -110,13 +114,19 @@ View = View
                         el.bind evt, handler
                         me.__bound__.push [el, evt, handler]
             this
-        
-        render: ->
-            @renderTemplate()
-            @bindEvents()
-            @trigger "render"
-        
+
+        render: (args...)->
+            @__potato__.render this,args...
     static:
+        context: (obj, args...)->
+            obj.context args...
+
+        render: (obj, parent)->
+            context = @context obj, parent
+            obj.renderTemplate context
+            obj.bindEvents()
+            obj.trigger "render"
+
         keyHandlers:
             el: (content, tagValue)->
                 content.components.el = HTMLElement

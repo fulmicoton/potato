@@ -1,5 +1,9 @@
 potato = require '../'
 
+window = require('jsdom').jsdom('<html><head></head><body></body></html>').createWindow()
+$ = require "jquery"
+
+
 describe 'potato.Literal', ->
     
     it 'allows instantiation', ->
@@ -355,3 +359,17 @@ describe 'potato.split', ->
         expect(chunks).toEqual(["abcddefddgh"])
         chunks = potato.split "abcddefddgh", /d+/, 2
         expect(chunks).toEqual(["abc", "efddgh"])
+
+describe "potato.View", ->
+
+    it 'can be loaded into a DOM element', ->
+        $body = $ "body"
+        expect($body.length).toEqual 1
+        TestView = potato.View
+            template: "hello {{ name }}"
+            methods:
+                context: (parent)->name: "toto"
+        TestView.loadInto $ "body"
+        expect($body.html()).toEqual "hello toto"
+
+    it 'can receive a context from its parent', ->

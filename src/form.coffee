@@ -23,6 +23,17 @@ Form = view.View
             throw "NotImplemented"
         print_errors: (errors)->
             throw "NotImplemented"
+    static:
+        context: (obj, parent)->
+            if parent?
+                parent
+            else
+                undefined
+        render: (obj, parent)->
+            view.View.render obj, parent
+            context = @context parent
+            if context != undefined
+                obj.set_val context
 
 PotatoView = Form
     el: "<fieldset>"
@@ -110,7 +121,7 @@ Field = Form
     template: "<#input/><#error/>"
     components:
         input: Input
-        error: widget.TemplateView
+        error: view.View
             el: "<div class='error_msg'>"
             template: "{{errors}}"
     delegates:

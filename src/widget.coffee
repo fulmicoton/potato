@@ -58,19 +58,5 @@ TabMenu = view.View
             item_id = evt.currentTarget.dataset.item_id
             @select item_id
 
-TemplateView = view.View
-    __sectionHandlers__:
-        context: (v)->
-            __extract_context__: v
-
-TemplateView = TemplateView
-    context: (parent) -> this
-    methods:
-        render: (parent)->
-            context = @__potato__.__extract_context__.apply parent
-            @el.html @__potato__.__template__ context
-
-
 module.exports = 
     TabMenu: TabMenu
-    TemplateView: TemplateView
