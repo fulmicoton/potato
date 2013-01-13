@@ -167,13 +167,7 @@ CollectionOf = (itemType) ->
 
             size: ->
                 @__items.length
-        
-            setData: (data)->
-                @__items = []
-                for itemData in data
-                    @addData itemData
-                this
-        
+                
         static:
             validate: (data)->
                 validationResult = ok: true

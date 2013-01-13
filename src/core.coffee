@@ -177,7 +177,6 @@ error = (args...)->
     for arg in args
         console.log "ERROR : ", arg
 
-
 # ---------------------------
 # You need some kind of Leaf to this tree of composed models.
 # That's the role of Literal. 
@@ -257,14 +256,13 @@ List = Literal
 
 Map = Literal
     type: 'map'
+    itemType: Literal
     make: (data)->
         newInstance = {}
         if data?
             newInstance.set data
         newInstance
-    
-    itemType: Literal
-    
+        
     toData: (obj)->
         data = {}
         for k,v of obj
