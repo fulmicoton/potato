@@ -211,12 +211,15 @@ RadioBoxesOf = (EnumModel) -> Field
                         choices: EnumModel.choices
                         choiceid: "options#" + optionid
                     }
-                get_val: ->
+                selectedInput: ->
                     for radiobtn in @el.find("input")
                         $radiobtn = $ radiobtn
                         if $radiobtn.is(':checked')
-                            return $radiobtn.attr "value"
+                            return $radiobtn
                     return null
+                get_val: ->
+                    selectedInput = @selectedInput()
+                    selectedInput?.attr "value"
 
                 set_val: (val)->
                     if val != @get_val()
