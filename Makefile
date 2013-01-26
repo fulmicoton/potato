@@ -22,7 +22,7 @@ clean:
 	rm -f examples/assets/*.js
 	rm -f examples/assets/*.css
 
-doc:
+build-doc:
 	readymade build -t .readymade.targets -f Makefile
 
 doc/assets/potato.min.js: potato.min.js
