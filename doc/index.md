@@ -15,31 +15,15 @@ NodeJS
 In the browser
 -------------------
 
+[Download the Latest Version **0.1.1**   [ Tar Ball ] ](https://github.com/poulejapon/potato/archive/0.1.1.tar.gz)
 
 Potato comes in two flavour. 
 
 **potato.min.js** in which the potato module will endup as "potato" in your global
 namespace. 
 
-**potato-browserify.min.js** which is browserified. In that case, the potato module is returned by the call
-
-```
-require `potato`
-```
-So that you can name it the way you want. In the following examples we will 
-consider the latter, and assign it to **'O'**.
-
-
-You can download the two files from 
-To add it to your page, do
-Add at the end of your page the following 
-```
-    <script src='potato.min.js'>
-```
-or
-```
-    <script src='potato-browserify.min.js'>
-```
+**potato-browserify.min.js** which is browserified. In that case, the potato module is returned by the call `require potato`. 
+In the following examples we will consider the latter, and assign via `O = require 'potato'`.
 
 
 
@@ -49,8 +33,8 @@ Core
 
 
 Potato is a CoffeeScript micro-framework focused
-on composition. It relies on its own object model, whose syntax might recall that of an ORM.
-
+on composition. It relies on its own object model, whose syntax
+might recall that of an ORM.
 
 Object composition
 -------------------------------------------------
