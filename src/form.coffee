@@ -30,15 +30,11 @@ Form = view.View
             if context != undefined
                 @set_val context
             @trigger "render", context
-    static:
-        context: (obj, parent)->
-            if parent?
-                parent
-            else
-                undefined
+        context: (parent)->
+           undefined
 
 
-PotatoView = Form
+PotatoForm = Form
     el: "<fieldset>"
     methods:
         get_val: ->
@@ -49,9 +45,11 @@ PotatoView = Form
 
         set_val: (val)->
             changed = false
-            for k,v of @components()
-                if val[k]?
-                    changed = changed or (this[k].set_val val[k])
+            for k,_ of @components()
+                v = val[k]
+                if v?
+                    if this[k].set_val v
+                        changed = true
             if changed
                 @trigger "change"
         
@@ -82,7 +80,7 @@ PotatoView = Form
             for k,v of @components()
                 this[k].print_valid()
 
-PotatoViewOf = (model)->
+PotatoFormOf = (model)->
     content = {}
     content.components = utils.mapDict ((model)->FormFactory.FormOf model), model.components()
     utils.rextend content, static: model: model
@@ -100,7 +98,7 @@ PotatoViewOf = (model)->
         else
             template += "<##{k}/>"
     content.template = template
-    PotatoView content
+    PotatoForm content
 
 Input = view.View
     el: "<input type=text>"
@@ -256,7 +254,7 @@ FormFactory = core.Tuber
         integer: (model)-> IntegerForm { static: model: model } 
         radio:    RadioBoxesOf
         "boolean": (model)-> Checkbox  { static: model: model }
-        potato: PotatoViewOf
+        potato: PotatoFormOf
     FormOf: (model)->
         @widgets[model.type](model)
 

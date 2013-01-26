@@ -208,7 +208,7 @@ Literal = Tuber
     set: (obj,val)->
         val
     setData: (obj,val)->
-        val
+        @set obj, val
     makeFromData: (data)->
         data
 

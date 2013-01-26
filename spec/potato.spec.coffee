@@ -34,6 +34,24 @@ describe 'potato.Literal', ->
         TestList = potato.ListOf potato.Integer
         expect(TestList.make([0])[0]).toEqual(0)
 
+describe 'potato.String', ->
+       
+    it 'returns empty string by default', ->
+        expect(potato.String.make()).toEqual ''
+
+    it 'has allows validation', ->
+        expect(potato.String.validate 4).toEqual
+            ok: false
+            errors: 'Expected a string.'
+
+    it 'has allows validation', ->
+        expect(potato.String.validate '').toEqual
+            ok: true
+
+    it 'has allows validation', ->
+        expect(potato.NonEmptyString.validate '').toEqual
+            ok: false
+            errors: 'Must not be empty.'
 
 describe 'potato.EventCaster', ->
     
@@ -126,6 +144,23 @@ describe 'potato.Model', ->
         expect(model.name).toEqual "Some Name"
         expect(model.submodel.a).toEqual "Some a"
         expect(model.submodel.b).toEqual "Some Custom b"
+
+    it 'has toData/setData', ->
+        Profile = potato.Model
+            components:
+                nickname: potato.String
+                first_name: potato.String
+                last_name: potato.String
+                age: potato.Integer
+        profile = Profile.make()
+        profile.setData
+            nickname: 'Patoulette'
+            age: 12
+        expect(profile.toData()).toEqual
+            nickname: 'Patoulette'
+            age: 12
+            first_name: ''
+            last_name: ''
     
     it 'offers components method to list subcomponents', ->
         SomeModel = potato.Model
@@ -360,7 +395,11 @@ describe 'potato.split', ->
         chunks = potato.split "abcddefddgh", /d+/, 2
         expect(chunks).toEqual(["abc", "efddgh"])
 
-describe "potato.View", ->
+# describe '', ->
+    
+
+
+describe 'potato.View', ->
 
     it 'can be loaded into a DOM element', ->
         $body = $ "body"
