@@ -10,7 +10,7 @@ describe 'potato.Literal', ->
         TestLiteral = potato.Literal
             default: 5
         expect(TestLiteral.make()).toEqual(5)
-    
+        
     it 'link to default values rather than give reference to them', ->
         TestList = potato.Literal
             default: [2]
@@ -306,7 +306,7 @@ describe 'potato.extend', ->
         expect(c1.k.b).toEqual 2
 
 describe 'potato.rextend', ->
-
+    
     it 'works like a (infinite-level) deepcopy when used with {}', ->
         c = {k: 2, obj: {a: 3}}
         cClone = potato.rextend {}, c
@@ -316,6 +316,16 @@ describe 'potato.rextend', ->
         c.obj.a = 4
         expect(cClone.k).toEqual(2)
         expect(cClone.obj.a).toEqual(3)
+
+    it 'works does not recursively call itself for object that are not simple dictionary', ->
+        class A
+            constructor: (@val)->
+            half: ->
+                @val/2
+        a = new A(14)
+        clone = potato.rextend {}, {obj:a}
+        expect(clone.obj.half()).toEqual(7)
+    
     
     it 'makes it possible to merge dictionaries', ->
         c1 = {k1: 1}
@@ -394,6 +404,7 @@ describe 'potato.split', ->
         expect(chunks).toEqual(["abcddefddgh"])
         chunks = potato.split "abcddefddgh", /d+/, 2
         expect(chunks).toEqual(["abc", "efddgh"])
+
 
 
 describe 'potato.Email', ->

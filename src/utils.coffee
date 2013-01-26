@@ -10,7 +10,6 @@ extend = (dest,extras...) ->
             dest[k] = v
     dest
 
-
 stringSplitOnce = (splitter)->(s)->
     pos = s.indexOf splitter
     if pos >= 0
@@ -70,9 +69,12 @@ removeEl = (arr, el, n=1)->
             return n-nbOcc
     n
 
+
+SIMPLE_DICTIONARY_CONSTRUCTOR = {}.constructor
+
 twoRecursiveExtend = (dest, extra)->
     for k,v of extra
-        if (typeof v) == "object" and v? and not v.length?
+        if (typeof v) == "object" and v? and not v.length? and v.constructor == SIMPLE_DICTIONARY_CONSTRUCTOR 
             # v is a non-null object and is not an array.
             if not dest[k]?
                 dest[k] = {}
