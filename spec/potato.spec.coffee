@@ -177,7 +177,16 @@ describe 'potato.Model', ->
         expect(model.components().b).toBeDefined()
         expect(model.components().c).toBeUndefined()
         expect(model.c).toBeDefined()
-            
+    
+    it 'offers components method to list subcomponents', ->
+        SomeModel = potato.Model
+            components:
+                a: potato.String
+                b: potato.String
+            properties:
+                c: potato.String
+        model = SomeModel.make()
+
     it 'offers properties', ->
         SomeModel = potato.Model
             properties:
@@ -326,7 +335,7 @@ describe 'potato.rextend', ->
         clone = potato.rextend {}, {obj:a}
         expect(clone.obj.half()).toEqual(7)
     
-    
+
     it 'makes it possible to merge dictionaries', ->
         c1 = {k1: 1}
         c2 = {k2: 2}

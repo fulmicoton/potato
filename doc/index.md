@@ -1,7 +1,52 @@
-Object Model
+
+Getting started
+=================================================
+[![Build Status](https://secure.travis-ci.org/poulejapon/potato.png)](http://travis-ci.org/#!/poulejapon/potato)
+
+
+NodeJS
+------------------
+
+```bash
+    npm install potato
+```
+
+
+In the browser
+-------------------
+
+
+Potato comes in two flavour. 
+
+**potato.min.js** in which the potato module will endup as "potato" in your global
+namespace. 
+
+**potato-browserify.min.js** which is browserified. In that case, the potato module is returned by the call
+
+```
+require `potato`
+```
+So that you can name it the way you want. In the following examples we will 
+consider the latter, and assign it to **'O'**.
+
+
+You can download the two files from 
+To add it to your page, do
+Add at the end of your page the following 
+```
+    <script src='potato.min.js'>
+```
+or
+```
+    <script src='potato-browserify.min.js'>
+```
+
+
+
+Core
 =================================================
 
-[![Build Status](https://secure.travis-ci.org/poulejapon/potato.png)](http://travis-ci.org/#!/poulejapon/potato)
+
 
 Potato is a CoffeeScript micro-framework focused
 on composition. It relies on its own object model, whose syntax might recall that of an ORM.
@@ -51,7 +96,7 @@ Though this style is not really recommended for such a definition, this syntax c
 deep-overriding feature described below.
 
 ```coffeescript
-O = require 'potato'.
+O = require 'potato'
 
 UserInformation = O.Potato
     components:
@@ -64,7 +109,7 @@ UserInformation = O.Potato
 ```
 
 
-Inheritance, and deep-overriding.
+Deep Inheritance
 --------------------------------------------------
  
  The children components of your potatoes may themselves have components and your potatoes might rapidly look like small tree-like structures of components. You might still want to extend it, and override a piece of functionality located slightly deeper than in the very first layer of this tree.
@@ -79,7 +124,7 @@ to at least add a state and a country mention.
 # here we added two new components
 # to our Address object.
 
-InternationalAddress = Address
+Address = potato.Potato
     components:
         state:   O.String
         country: O.String
@@ -89,11 +134,13 @@ InternationalAddress = Address
 String (as well as all Literal types) has a static property called default that describes the default value
 that should be produced on instantiation.
 
-Let's say we actually wanted to have "USA", "NY", "New York City" as the default values for the country and the state components. We could have written :
+Let's say that our new application will have to handle american addresses. We'd like to use the work done with our Address model, **override** a couple of values and **add a state field**.
+
+We could have written :
 
 ```coffeescript
 # ...
-InternationalAddress = Address
+AmericanAddress = Address
     components:
         city:    O.String
             default: "New York City"
@@ -122,48 +169,187 @@ address = InternationalAddress.make()
 
 
 You may define more static members using the 
-"static" section prefix. For instance, Potato's Models have a JSON deserialization function which looks pretty much like this. 
-    
+"static" section prefix.
+
 ```coffeescript
-Model = O.Potato
+
+O = require 'potato'
+# ...
+Color = O.Potato
+    components:
+        r: O.Integer
+        g: O.Integer
+        b: O.Integer
     static:
-        fromJSON: (json)->
-            @make JSON.parse json
+        fromHexCode: (hexCode)->
+            # ...
+
+trendyPink = Color.fromHexCode '#ff9900'
 ```
 
-On the other hands methods are made to be called from 
-objects.
-A model also have a toJSON method, which looks like :
+In addition, in a pythonic fashion, all your methods are available as static methods.
 
 ```coffeescript
-Model = O.Potato
+O = require 'potato'
+# ...
+Color = O.Potato
+    components:
+        r: O.Integer
+        g: O.Integer
+        b: O.Integer
     methods:
-        toJSON: ->
-            JSON.stringify @toData()
+        toHexCode: ->
+            # ...
+    static:
+        fromHexCode: (hexCode)->
+            # ...
+
+trendyPink = Color.fromHexCode '#ff9900'
+console.log trendyPink.toHexCode() 
+# should log '#ff9900'
+# and is equivalent to ...
+console.log Color.toHexCode trendyPink
 ```
 
-As an helper, a static function is actually also magically created, taking the object to which it should be bound to as a first argument.
+Potato also allows to attach static methods
+to javascript literals. You might want to 
+describe a type for which instances are simple
+strings and add a validation method.
 
-Someone in fond of functional programming may write things such as 
-    
 ```coffeescript
-map Model.toJSON, someListOfModels
+O = require 'potato'
+Email = O.String
+    EMAIL_PTN:  /// ^    #begin of line
+       ([\w.-]+)         #one or more letters, numbers, _ . or -
+       @                 #followed by an @ sign
+       ([\w.-]+)         #then one or more letters, numbers, _ . or -
+       \.                #followed by a period
+       ([a-zA-Z.]{2,6})  #followed by 2 to 6 letters or periods
+       $ ///i   
+    validate: (val)->
+        if @EMAIL_PTN.exec(val)?
+            ok: true
+        else
+            ok: false
+            errors: 'This is not a valid email address.'
 ```
 
-as an alternative to
-    
-```coffeescript
-model.toJSON() for model in someListOfModels
-```
 
-
-
-
-Knowing your components is a cool thing.
+Type Introspection
 --------------------------------------------------
 
-Your objects are aware of their components and their types and that is a great things.
+When writing objects inheriting from Potato, members listed
+in the **components** section are accessible via the
+**components** method, available for both the potato and
+its instances.
 
-Validation
-Serialization
-Generic forms
+You may hide some properties from the @components method by 
+declaring them in the **property** section.
+
+It is helpful to implement **transient properties**, that should
+not be serialized for instance.
+
+```coffeescript
+O = require 'potato'
+
+Box = O.Potato
+    property:
+        _surface: O.Integer
+            default: undefined
+    components:
+        x: O.Integer
+        y: O.Integer
+        w: O.Integer
+        h: O.Integer
+    methods:
+        surface: ->
+            if not @surface?
+                @surface = @w*@h
+            @surface
+
+for k,v of Box.components()
+    # k takes  ("x", "y", "w", h) for value in this loop
+    # v takes potato.Integer for value in this loop.
+    console.log k 
+
+box = Box.make()
+for k,v of box.components()
+    # it works just the same with instances.
+    console.log k 
+
+```
+For instance, this functionality makes it possible a lot of the functionalities of potato
+(toJSON, validation, automatic form generation).
+
+
+
+
+Events
+=================================================
+
+
+
+EventCasters
+----------------------------------------------
+
+Event casters follows the same syntax as jQuery 
+event-binding. Everything is done using **unbind/bind/trigger methods**.
+
+```coffeescript
+    O = require 'potato'
+
+    Engine = O.EventCaster
+        methods:
+            start: ->
+                if not @intervalId?
+                    console.log "start!"
+                    @intervalId = setInterval (=> @trigger 'run'), 500
+            stop: ->
+                console.log "stop!"
+                clearInterval @intervalId
+                @intervalId = null
+
+    Wheel = O.EventCaster
+        components:
+            name: O.String
+        methods:
+            roll: -> console.log "#{@name} rolling!"
+        static:
+            named: (name)-> @make {name: name}
+
+    MotorBike = O.Potato
+        components:
+            engine: Engine
+            frontWheel: Wheel
+                components:
+                    name: O.String
+                        default: "Front Wheel"
+            backWheel: Wheel
+                components:
+                    name: O.String
+                        default: "Back Wheel"
+        methods:
+            clutch: ->
+                for wheel in [@frontWheel, @backWheel]
+                    do (wheel)=>
+                        @engine.bind 'run', -> wheel.roll()
+            declutch: ->
+                engine.unbind 'run', -> wheel.roll()
+
+    motorbike = MotorBike.make()
+    motorbike.clutch()
+    motorbike.engine.start()
+
+```
+
+
+Model
+=================================================
+
+
+
+View
+=================================================
+
+Form generation
+=================================================
