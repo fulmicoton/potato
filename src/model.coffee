@@ -23,15 +23,6 @@ String = core.Literal
         else
             { ok: false, errors: "Expected a string." }
 
-NonEmptyString = String
-    default: "something..."
-    validate: (data)->
-        validAsString = String.validate data
-        if validAsString.ok and data != ""
-            { ok: true }
-        else
-            { ok: false, errors: "Must not be empty." }
-
 Boolean = core.Literal
     type: 'boolean'
     default: false
@@ -195,7 +186,6 @@ model =
     Integer: Integer
     String: String
     Boolean: Boolean
-    NonEmptyString: NonEmptyString
     Enum: Enum
 
 module.exports = model

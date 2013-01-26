@@ -395,9 +395,15 @@ describe 'potato.split', ->
         chunks = potato.split "abcddefddgh", /d+/, 2
         expect(chunks).toEqual(["abc", "efddgh"])
 
-# describe '', ->
-    
 
+describe 'potato.Email', ->
+    
+    it 'has validation', ->
+        expect(potato.Email.validate "paul.masurel@gmail.com").toEqual
+            ok: true
+        expect(potato.Email.validate "paul.masurelgmailcom").toEqual
+            ok: false
+            errors: 'This is not a valid email address.'
 
 describe 'potato.View', ->
 
