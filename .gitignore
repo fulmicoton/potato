@@ -3,5 +3,5 @@ node_modules
 npm-debug.log
 .DS_Store
 src/*.js
-*.js
+doc/assets/*.js
 *.map
