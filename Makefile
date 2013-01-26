@@ -22,9 +22,11 @@ clean:
 	rm -f examples/assets/*.js
 	rm -f examples/assets/*.css
 
+doc:
+	readymade build -t .readymade.targets -f Makefile
+
 doc/assets/potato.min.js: potato.min.js
 	cp potato.min.js doc/assets/potato.min.js
-
 
 doc/assets/potato.js: potato.js
 	cp potato.js doc/assets/potato.js
