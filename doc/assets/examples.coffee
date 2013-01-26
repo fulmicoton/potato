@@ -42,7 +42,7 @@ ExampleEditor = potato.View
             smartIndent: false
             tabSize: 2
             indentWithTabs: false
-            indentUnit: 2
+            indentUnit: 4
             mode:  "coffeescript"
 
 ExamplePreview = potato.View

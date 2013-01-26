@@ -37,13 +37,15 @@ FormExample = potato.View
     events:
         "button": "click": ->
             window.exampleForm = @exampleForm
-            potato.log @exampleForm.validate()
+            potato.log "Current form info :", @exampleForm.validate()
         "": "render": ->
-            @exampleForm.set_val
+            model = FormModel.make
                 first_player:
                     nickname: "Patoulette"
                     age: 12
                 second_player:
                     age: 15
+            @exampleForm.val model
+                
     components:
         exampleForm: potato.FormFactory.FormOf(FormModel)
