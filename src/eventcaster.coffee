@@ -26,8 +26,11 @@ EventCaster = core.Potato
         unbind: (evtName, callback)->
             callbacks = @__listeners[evtName]
             if callbacks?
-                utils.removeEl callbacks, callback, -1
-                if callbacks.length == 0
+                if callback?
+                    utils.removeEl callbacks, callback, -1
+                    if callbacks.length == 0
+                        delete @__listeners[evtName]
+                else
                     delete @__listeners[evtName]
             this
 

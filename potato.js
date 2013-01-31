@@ -944,8 +944,12 @@ require.define("/eventcaster.js", function (require, module, exports, __dirname,
         var callbacks;
         callbacks = this.__listeners[evtName];
         if (callbacks != null) {
-          utils.removeEl(callbacks, callback, -1);
-          if (callbacks.length === 0) {
+          if (callback != null) {
+            utils.removeEl(callbacks, callback, -1);
+            if (callbacks.length === 0) {
+              delete this.__listeners[evtName];
+            }
+          } else {
             delete this.__listeners[evtName];
           }
         }
